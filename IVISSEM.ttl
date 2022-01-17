@@ -1,0 +1,511 @@
+@prefix rdf:                <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:               <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct:                <http://purl.org/dc/terms/> .
+@prefix owl:                <http://www.w3.org/2002/07/owl#> .
+@prefix foaf:               <http://xmlns.com/foaf/0.1/>.
+@prefix xsd:                <http://www.w3.org/2001/XMLSchema>.
+@prefix vann:               <http://purl.org/vocab/vann/> .
+@prefix schema:				<https://schema.org/>.
+@prefix :                   <http://www.ivissem.example/core/ivissem#> . #this is just a sample, not real or final URL
+
+
+:	
+	a                           	<http://purl.org/vocommons/voaf#Vocabulary> , owl:Ontology ;
+	dct:title                   	"IViSSEM Vocabulary and Ontology";
+	dct:description             	"This is a collection of properties, classes and datatypes created for the IVISSEM project, as well as a list of all re-used properties.";
+	dct:creator                 	"";
+	dct:issued                 		"2021-xx-xx"^^xsd:date;
+	dct:publisher               	"";
+	dct:license                 	<http://creativecommons.org/publicdomain/zero/1.0/> ;
+	vann:preferredNamespacePrefix   "ivissem" ;
+	vann:preferredNamespaceUri      "http://www.ivissem.net/core/ivissem#" ;
+	owl:versionInfo					"1.0";
+.
+
+#creators and publishers must be described as and individual with at a type, name, (role)? and unique identifier. 
+
+#######################
+#  Object Properties  #
+#######################
+
+:levelOfExpertise
+	a                   owl:ObjectProperty, rdf:Property;
+	rdfs:label          "The level of expertise on a scientific subject."@en,
+						"Nível de conhecimento sobre uma área científica."@pt,
+						"El nivel de conocimiento sobre un área científica. "@es,
+						"Das Kenntnisstand über eine Wissenschaftlicher bereich."@de;
+	rdfs:comment        "This is used to represent metaknowledge on a relation between a user and the scientific areas they have knowledge about."@en,
+						"Esta propriedade é usada para representar metaknowledge sobre a relação entre um utilizador e as àreas sobre as quais tem conhecimento ciêntifico"@pt,
+						"Esta propriedad se utiliza para representar el metaknowledge en una relación entre un usuario y las áreas científicas sobre las que tienen conocimiento. "@es,
+						"Diese Property steht für das Metaknowledge über eine Beziehung zwischen einem Benutzer und den wissenschaftlichen Bereichen, über die sie Wissen haben."@de;
+	rdfs:domain         :ScientificKnowledge;
+	rdfs:range          [a owl:Class; 
+						   owl:unionOf (
+							  <http://data.europa.eu/snb/eqf/>
+							  xsd:string
+							  )] ;  
+	.
+
+:recommends
+	a                   owl:ObjectProperty, rdf:Property;
+	rdfs:label          "A resource that this user recommends."@en,
+						"Um recurso recomendado pelo utilizador."@pt,
+						"Un recurso recomendado por el usuario."@es,
+						"Ein Ressource der vom User empfohlenen."@de;
+	rdfs:comment        "In this context the resource is a research output. It can be anything published on the platform."@en,
+						"Neste contexto o recurso é um resultado da investigação. Pode ser qualquer coisa publicada na plataforma."@pt,
+						"En este contexto, el recurso es resultado de la investigación. Puede ser cualquier cosa publicada en la plataforma."@es,
+						"Hier ist die Ressource das Ergebnis einer Untersuchung. Es kann alles sein, was auf der Plattform veröffentlicht wird."@de;            
+	rdfs:domain         :User;
+	rdfs:range          :ResearchOutput;
+	rdfs:subPropertyOf  dct:relation;
+	rdf:seeAlso         :totalRecommendations
+	.
+
+#########################
+#  Datatype Properties  #
+#########################
+
+:numberOfFollowers
+	a                   owl:DatatypeProperty, rdf:Property;
+	rdfs:label          "Number of users following this user "@en,
+						"Número de utilixadores que seguem este utilizador."@pt,
+						"Número de usuarios que siguen a este usuario."@es,
+						"Anzahl der Benutzer, die diesem Benutzer folgen"@de;
+	rdfs:comment        "Sum of the instances of schema:follows targeting the agent."@en,
+						"Soma das intâncias de schema:follows direcionadas ao agente."@pt,
+						"Suma de las instancias de schema:follows apuntando al agente."@es,
+						"Summe der Instanzen des schema:follows der Ausrichtung auf den Agenten."@de;
+	rdfs:domain         :User;
+	rdfs:range          xsd:integer;
+	rdfs:seeAlso        schema:follows;
+	.
+
+:platformShares
+	a                   owl:DatatypeProperty, rdf:Property;
+	rdfs:label          "Sum of times the research output was shared."@en,
+						"Soma das vezes que um resultado de pesquisa foi partilhado."@pt,
+						"Suma de veces que el resultado de la investigación se ha compartido."@es,
+						"Summe der Zeiten, dass ein Forschungsergebnis geteilt wurde."@de;
+	rdfs:domain         :ResearchOutput;
+	rdfs:range          xsd:integer;
+	.
+
+:socialMediaIndicator   
+	a                   owl:ObjectProperty, rdf:Property; # or is it datatype?
+	rdfs:label          "Any measure of received attention on social media."@en,
+						"Qualquer medida ds atenção recebida em redes sociais."@pt,
+						"Cualquier medida de atención recebida de las redes sociales."@es,
+						"Irgendwelche Maß an Aufmerksamkeit, das von sozialen Netzwerken erhalten wird."@de
+						;
+	rdfs:range          xsd:decimal, xsd:double, xsd:float ; 
+	.
+
+:totalCitations
+	a                   owl:DatatypeProperty, rdf:Property;
+	rdfs:label          "The sum of all citations of a thing."@en,
+						"A soma de todas as citações de uma coisa."@pt,
+						"La suma de todas las citas de una cosa."@es,
+						"Die Summe aller Zitate einer Sache."@de;
+	rdfs:domain         [a owl:Class; owl:unionOf (
+							  :ResearchOutput 
+							  :User
+							  )] ;
+	rdfs:range          xsd:integer ;
+	rdfs:seeAlso        schema:citation
+	.
+
+:totalPublications
+	a                   owl:DatatypeProperty, rdf:Property;
+	rdfs:label          "Sum of all publications authored by the person"@en,
+						"Soma de todas as publicações da autoria da pessoa."@pt,
+						"Suma de todas las publicaciones escritas por la persona."@es,
+						"Summe aller von der Person verfassten Veröffentlichungen."@de;
+	rdfs:domain         :User;
+	rdfs:range          xsd:integer;
+	.
+
+:totalRecommendations
+	a                   owl:DatatypeProperty, rdf:Property;
+	rdfs:label          "The sum of all recommendations of a thing"@en,
+						"A soma de todas as recomendações de uma coisa."@pt,
+						"La suma de todas las recomendaciones de una cosa."@es,
+						"Die Summe aller Empfehlungen einer Sache."@de;
+	rdfs:domain         :ResearchOutput;
+	rdfs:range          xsd:integer;
+	rdf:seeAlso         :recommends    
+	.
+	
+
+#############
+#  Classes  #
+#############
+
+:Affiliation
+	a                   owl:Class, rdfs:Class;
+	rdfs:label        "Class used in reification to represent the connection between a user and an entity."@en,
+						"Uma Classe utilizada em reificação para representar a ligação entre um utilizador e uma entidade."@pt,
+						"Una clase utilizada en la cosificación para representar la conexión entre un usuario y una entidad."@es,
+						"Klasse, die bei der Reifikation verwendet wird, um die Verbindung zwischen einem Benutzer und einer Entität darzustellen. "@de;
+	.
+
+:ResearchOutput
+	a                   owl:Class, rdfs:Class;
+	rdfs:label          "Any output of academic research work uploaded to the platform."@en,
+						"Qualquer produto de investigação académica disponibilizado na plataforma."@pt,
+						"Cualquier resultado de investigación académica que está disponible en la plataforma."@es,
+						"Irgendwelche Forschungsergebnis, das auf der Plattform verfügbar ist."@de;
+	rdfs:subClassOf     dct:BibliographicResource; 
+	owl:disjointWith 	:User
+	.
+
+:ScientificKnowledge
+	a                   owl:Class, rdfs:Class;
+	rdfs:label        "Class for reification with details on the User's knowledge ona  topic."@en,
+						"Qualquer produto de investigação académica disponibilizado na plataforma."@pt,
+						"Cualquier resultado de investigación académica que está disponible en la plataforma."@es,
+						"Jedes Forschungsergebnis, das auf der Plattform verfügbar ist."@de;
+	.
+
+:User 
+	a                   owl:Class, rdfs:Class;
+	rdfs:label          "A registered user of the IVISSEM platform."@en,
+						"Um utilizador registado na plataforma IVISSEM."@pt,
+						"Un usuario registrado en la plataforma IVISSEM."@es,
+						"Ein registrierter Benutzer der IVISSEM-Plattform."@de;
+	rdfs:subClassOf     foaf:Person; 
+	.
+
+
+
+
+#############
+# Datatypes #
+#############
+#A side document with tested identifiers for this is provided
+
+:cienciaID
+	a 					rdfs:Datatype;
+	rdfs:label			"CienciaID - researcher's unique identifier"@en,
+						"CiênciaID - identificador único de investigadores."@pt,
+						"CienciaID - identificador único de los investigadores."@es,
+						"CienciaID - eindeutige Kennung der Ermittler."@de;
+	rdfs:comment		"Portugal's national identification and authentication system for the scientific environment."@en, 
+						"Sistema de autenticação e identificação português para o ecossistema de Ciência nacional."@pt,
+						"Sistema nacional portugués de identificación y autenticación para el ecosistema científico nacional."@es,
+						"Portugiesisches nationales Identifikations- und Authentifizierungssystem für das wissenschaftliche Umfeld."@de;
+	rdfs:isDefinedBy	: ;
+	rdfs:seeAlso		<https://www.ciencia-id.pt>;
+	owl:onDatatype		xsd:string;
+	owl:				([ xsd:pattern	"(((https?://)?www.cienciavitae.pt/portal/)[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$)|^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$"  ]);
+.
+
+:DOI
+a 						rdfs:Datatype;
+	rdfs:label 			"Digital Object Identifier"@en,
+						"Digital Object Identifier"@pt,
+						"Identificador de objeto digital"@es,
+						"Digitaler Objektbezeichner"@de;
+	rdfs:comment		"A persistent unique identifier for online documents."@en,
+						"Digital object identifier é um padrão para identificação de documentos online."@pt,
+						"Un enlace permanente en forma de código alfanumérico que identifica de forma única un contenido electrónico."@es,
+						"Es ist ein eindeutiger und dauerhafter digitaler Identifikator für Online-Objekte."@de;
+	rdfs:isDefinedBy	: ;
+	rdfs:seeAlso		<https://www.doi.org>;
+	owl:onDatatype		xsd:string;
+	owl:				([ xsd:pattern	"((https?://)?doi.org/)?10.[a-z0-9]{4,9}/[-._;()/:a-z0-9A-Z]+"]);
+.
+
+:ISBN
+a 						rdfs:Datatype;
+	rdfs:label			"International Standard Book Number"@en,
+						"International Standard Book Number"@pt,
+						"Número Internacional Normalizado del Libro"@es,
+						"International Standard Book Number"@de;
+	rdfs:comment		"It is a number that uniquely identifies books and other independent publications with an editorial content, such as multimedia products and software."@en,
+						"Sistema internacional numérico de identificação de livros e softwares com contéudo editorial."@pt,
+						"Es un identificador único para libros y software con contenido editorial."@es,
+						"Es  ist eine Nummer zur eindeutigen Kennzeichnung von Büchern und anderen selbstständigen Veröffentlichungen mit redaktionellem Anteil, wie beispielsweise Multimedia-Produkten und Software."@de ;
+	rdfs:isDefinedBy	: ;
+	rdfs:seeAlso		<www.isbn-international.org>;
+	owl:onDatatype		xsd:string;
+	owl:				([ xsd:pattern	"(^isbn: ?|^)((978|979)[0-9]{10}|(978-|979-)[-0-9]{13}|(?=.{13}$)[0-9]+[-][0-9]+[-][0-9]+[-][0-9]+$|[0-9]{10}$)"  ]);
+.
+
+:ISSN
+	a 					rdfs:Datatype;
+	rdfs:label			"International Standard Serial Number"@en,
+						"Número Internacional Normalizado das Publicações em Série"@pt,
+						"Número Internacional Normalizado de Publicaciones Seriadas"@es,
+						"Internationale Standardnummer für fortlaufende Sammelwerke"@de;
+	rdfs:comment		"An eight-digit serial number used to uniquely identify a serial publication, such as a magazine and periodical publications."@en,
+						"Número serial de oito dígitos, usado para identificação única de uma publicação em série como revistas e periódicos."@pt,
+						"Un número internacional que permite identificar de manera única las publicaciones en serie como los diarios y las publicaciones periódicas."@es,
+						"Es ist eine internationale Nummer mit acht Ziffern, die Zeitschriften und Schriftenreihen eindeutig identifiziert."@de;
+	rdfs:isDefinedBy	: ;
+	rdfs:seeAlso		<https://www.issn.org>;
+	owl:onDatatype		xsd:string;
+	owl:				([ xsd:pattern	"(^ISSN: ?|^)[0-9]{4}-[0-9]{3,4}x?$"  ]);
+.
+
+:orcidID
+	a 					rdfs:Datatype;
+	rdfs:label			"Open Researcher Contributor Identification Initiative"@en,
+						"ID Aberto de Pesquisador e Contribuidor"@pt,
+						"Identificador Abierto de Investigador y Colaborador"@es;
+	rdfs:comment		"A nonproprietary alphanumeric code to uniquely identify authors and contributors of scholarly communication and connect them to their bibliographic output."@en,
+						"Um código alfanumérico não proprietário para identificar exclusivamente cientistas e outros autores académicos e contribuidores. Também faz a ligação destes às suas publicações."@pt,
+						"Un código alfanumérico que identifica de manera única a científicos y otros autores académicos. También los conecta a sus investigaciones y publicaciones académicas."@es,
+						"Die ORCID-iD ist ein überwiegend numerischer Code, der eine Webressource der ORCID-Organisation auflöst, unter der Personen wissenschaftliche Arbeiten auflisten können"@de;
+	rdfs:isDefinedBy	: ;
+	rdfs:seeAlso		<https://orcid.org/>;
+	owl:onDatatype		xsd:string;
+	owl:				([ xsd:pattern	"((https?://)?orcid\.org/)?(0000-000(?:1-[5-9]|2-[0-9]|3-[0-4])[0-9]{3}-[0-9]{3}[0-9x])" ]);
+.
+
+
+:researcherID
+	a 					rdfs:Datatype;
+	rdfs:label			"An identifying system for scientific authors."@en,
+						"Um sistema de identificação de autores científicos."@pt,
+						"Un sistema de identificación de autores científicos."@es,
+						"Ein identifizierendes System für wissenschaftliche Autoren."@de;
+	rdfs:isDefinedBy	: ;
+	rdfs:seeAlso		<https://www.researcherid.com>;
+	owl:onDatatype		xsd:string;
+	owl:				([ xsd:pattern	"((https?://)?publons.com/researcher/)?[A-z]{1,3}-[0-9]{4}-[0-9]{4}"  ]);
+.
+
+:scopusID
+	a 					rdfs:Datatype;
+	rdfs:label			"Scopus Author ID"@en,
+						"Identificador de autor Scopus"@pt,
+						"Identificador Scopus de autor"@es,
+						"Scopus-Autorenkennung"@de;
+	rdfs:comment		"Identifier for an author assigned in Scopus bibliographic database"@en,
+						"Identificador único de autor cadastrado na base de dados bibliográfica do Scopus."@pt,
+						"Identificador único del autor registrado en la base de datos bibliográfica de Scopus. "@es,
+						"Identifikator für eine/n Autor/in in der bibliographischen Datenbank Scopus"@de;
+	rdfs:isDefinedBy	: ;
+	rdfs:seeAlso		<https://www.scopus.com/>;
+	owl:onDatatype		xsd:string;
+	owl:				([ xsd:pattern	"(^(https?:\/\/)?(?:www\.)?scopus\.com\/authid\/detail\.ur(?:i|l)\?authorId=|^)([0-9]{9,11})$"  ]);
+.
+
+#######################
+# External Properties #
+#######################
+#organized by namespace - Schema, DCT, FOAF
+
+schema:affiliation
+	a					rdf:Property;
+	rdfs:label 			"Affiliation"@en, "Afiliação"@pt, "Afiliación"@es, "Zugehörigkeit zu"@de ;
+	rdfs:comment 		"An organization that this person is affiliated with. For example, a school/university, a club, or a team."@en,
+						"Um organização com a qual esta entidade está afilidada. Por exemplo: escola/universidade, um clube ou equipa."@pt,
+						"Organización a la que una persona o organización está afiliada. Como una escuela/universidad, un club o equipo."@es,
+						"Organisation, zu der eine Person/Organisation angehörig ist. Zum beispiel: ein Schule/Universität, ein Verein oder ein Team."@de ;
+	rdfs:isDefinedBy	<https://schema.org/>
+.
+
+schema:awards
+	a					rdf:Property;
+	rdfs:label 			"Awards"@en, "Prémios"@pt, "Distinción"@es, "Auszeichnung"@de ;
+	rdfs:comment 		"Awards won by or for this item."@en,
+						"Prémio recebido por esta entidade."@pt,
+						"Honor dado a esta entidad."@es,
+						"Ehrung oder Würdigung"@de;
+	rdfs:isDefinedBy	<https://schema.org/>
+.
+
+schema:endDate
+	a					rdf:Property;
+	rdfs:label 			"End Date"@en, "Data de Término"@pt, "Fecha de fin"@es, "Enddatum"@de ;
+	rdfs:comment 		"The end date and time of the item (in [ISO 8601 date format](http://en.wikipedia.org/wiki/ISO_8601))."@en,
+						"Data de Término de um item (no formato [ISO 8601 date format](http://pt.wikipedia.org/wiki/ISO_8601))."@pt,
+						"Fecha de fin de un ítem (en el formato  [ISO 8601 date format](http://es.wikipedia.org/wiki/ISO_8601))."@es,
+						"Enddatum eines Artikels (im Format  [ISO 8601 date format](http://de.wikipedia.org/wiki/ISO_8601))."@de ;
+	rdfs:isDefinedBy	<https://schema.org/>
+.
+
+schema:follows
+	a					rdf:Property;
+	rdfs:label 			"Follows"@en, "Segue"@pt, "Sigue"@es, "Folgt"@de ;
+	rdfs:comment 		"The most generic unidirectional social relation."@en,
+						"A relação social unidirecional mais genérica."@pt,
+						"La relación social unidireccional más genérica."@es,
+						"Die generateste unidirektionale soziale Beziehung."@de ;
+	rdfs:isDefinedBy	<https://schema.org/>
+.
+
+schema:knowsAbout
+	a                   rdf:Property;
+	rdfs:label          "A topic the user has knowledge about."@en,
+						"Um tópico sobre a qual o utilizador tem conhecimento."@pt,
+						"Un topico sobre la qual el usuario tiene conocimiento."@es,
+						"Ein Thema, über den der Benutzer Wissen hat"@de;
+	rdfs:comment        "This could refer to subjects studied both in formal or informal manner."@en,
+						"Pode referir-se a tópicos estudados formal ou informalmente."@pt,
+						"Puede referirse a temas estudiados de manera formal o informal."@es,
+						"Es kann sich auf Themen beziehen, die formell oder informell studiert wurden."@de;
+	rdfs:isDefinedBy	<https://schema.org/> 
+	.
+
+schema:qualifications
+	a					rdf:Property;
+	rdfs:label 			"Qualifications"@en, "Qualificações"@pt, "Calificaciones"@es, "Qualifikationen"@de ;
+	rdfs:comment 		"Specific qualifications required or owned."@en,
+						"Qualificações específicas necessárias ou adquiridas."@pt,
+						"Calificaciones específicas requeridas o adquiridas."@es,
+						"Spezifische Qualifikationen erforderlich oder erworben."@de ;
+	rdfs:isDefinedBy	<https://schema.org/>
+.
+
+schema:roleName
+	a					rdf:Property;
+	rdfs:label 			"Role Name"@en, "Nome da função"@pt, "Nombre de la función "@es, "Funktionsname"@de ;
+	rdfs:comment 		"A role played, performed or filled by a person or organization."@en,
+						"Nome da função desempenhada por uma pessoa ou entidade."@pt,
+						"Nombre de la función realizada por una persona o entidad."@es,
+						"Die Rolle spielte, ausgeführt oder erfüllt von einem Person oder Organisation."@de ;
+	rdfs:isDefinedBy	<https://schema.org/>
+.
+
+schema:startDate
+	a					rdf:Property;
+	rdfs:label 			"Start Date"@en, "Data de Início"@pt, "Fecha de inicio"@es, "Anfangsdatum"@de ;
+	rdfs:comment 		"The start date and time of the item (in [ISO 8601 date format](http://en.wikipedia.org/wiki/ISO_8601))."@en,
+						"Data de Início de um item (no formato [ISO 8601 date format](http://pt.wikipedia.org/wiki/ISO_8601))."@pt,
+						"Fecha de inicio de un ítem (en el formato  [ISO 8601 date format](http://es.wikipedia.org/wiki/ISO_8601))."@es,
+						"Anfangsdatum eines Artikels (im Format  [ISO 8601 date format](http://de.wikipedia.org/wiki/ISO_8601))."@de ;
+	rdfs:isDefinedBy	<https://schema.org/>
+.
+
+dct:abstract
+	a					rdf:Property;
+	rdfs:label 			"Abstract"@en , "Abstract"@pt, "Abstract"@es, "Abstract"@de ;
+	rdfs:comment 		"A summary of the resource."@en,
+						"Um resumo do documentod e pesquisa."@pt,
+						"Representación abreviada, objetiva y precisa del contenido de un documento o recurso."@es,
+						"Fachbegriff der Wissenschaftsprodädeutik"@de ;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+.
+
+dct:creator
+	a					rdf:Property;
+	rdfs:label 			"Creator"@en, "Criador"@pt, "Creador"@es, "Schöpfer"@de  ;
+	rdfs:comment 		"An entity responsible for making the resource."@en,
+						"Entidade responsável pela criação de um recurso."@pt,
+						"Responsable de crear un recurso."@es,
+						"Verantwortlich für die Erstellung einer Ressource."@de;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+.
+
+dct:identifier
+	a					rdf:Property;
+	rdfs:label 			"Identifier"@en, "Identificador"@pt, "Identificador "@es, "Identifizierer"@de ;
+	rdfs:comment 		"An unambiguous reference to the resource within a given context."@en,
+						"Um identificador único dentro de um dado contexto."@pt,
+						"Un identificador único dentro de un contexto específico."@es,
+						"Eine eindeutige Kennung innerhalb eines bestimmten Kontextes."@de ;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+.
+
+#in the scope of this projecty using identifiers within the scope of IVISSEM's datatypes is recommended. 
+
+dct:issued
+	a					rdf:Property;
+	rdfs:label 			"Date Issued"@en, "Data de Emissão"@pt, "Fecha de emisión"@es, "Ausgabedatum"@de;
+	rdfs:comment 		"Date of formal issuance of the resource."@en,
+						"Data formal de emissão do recurso."@pt,
+						"Fecha de emisión formal del recurso."@es,
+						"Datum der Ressource formalen Emission."@de ;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+	.
+
+dct:language
+	a					rdf:Property;
+	rdfs:label 			"Language"@en, "Idioma"@pt, "Idioma"@es, "Sprache"@de ;
+	rdfs:comment 		"A language of the resource."@en,
+						"O idioma do recurso."@pt,
+						"Idioma del recurso."@es,
+						"Sprache der Ressource."@de ;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+.
+
+dct:modified
+	a					rdf:Property;
+	rdfs:label 			"Date Modified"@en, "Data de Modificação"@pt, "Fecha de modificación"@es, "Datum geändert"@de ;
+	rdfs:comment 		"Date on which the resource was changed."@en,
+						"Data de modificação do recurso."@pt,
+						"Fecha en que se ha modificado el recurso."@es,
+						"Datum, an dem die Ressource geändert wurde."@de  ;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+.
+
+dct:publisher
+	a					rdf:Property;
+	rdfs:label 			"Publisher"@en, "Publicado por"@pt, "Publicado por"@es, "Herausgegeben von"@de ;
+	rdfs:comment 		"An entity responsible for making the resource available."@en,
+						"Entidade que disponibiliza o recuros."@pt,
+						"Entidad que proporciona el artículo."@es,
+						"Die Entität, die die Ressource zur Verfügung gestellt hat."@de ;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+.
+
+dct:source
+	a					rdf:Property;
+	rdfs:label 			"Source"@en, "Fonte"@pt, "Fuente"@es, "Quelle"@de  ;
+	rdfs:comment 		"A related resource from which the described resource is derived."@en,
+						"Um recurso relacionado no qual o recurso descrito se baseia."@pt,
+						"Un recurso relacionado de donde se deriva el recurso descrito."@es,
+						"Eine verwandte Ressource, aus der die beschriebene Ressource abgeleitet ist."@de ;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+.
+
+dct:subject
+	a					rdf:Property;
+	rdfs:label 			"Subject"@en, "Tópico"@pt, "Tema"@es, "Thema"@de ;
+	rdfs:comment 		"A topic of the resource."@en,
+						"Um tópico do recurso."@pt,
+						"Un tema del recurso."@es,
+						"Ein Thema der Ressource."@de;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+.
+
+dct:title
+	a					rdf:Property;
+	rdfs:label 			"Title"@en, "Título"@pt, "Título"@es, "Titel"@de ;
+	rdfs:comment 		"A name given to the resource."@en,
+						"Título dado ao recurso."@pt,
+						"Título dado al recurso."@es,
+						"Titel der Ressource angegeben."@de  ;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+.
+
+dct:type
+	a					rdf:Property;
+	rdfs:label 			"Type"@en, "Tipo"@pt, "Tipo"@es, "Typ"@de ;
+	rdfs:comment 		"The nature or genre of the resource."@en,
+						"A natureza ou tipologia do recurso,"@pt,
+						"La naturaleza o género del recurso."@es,
+						"Die Natur oder das Genre der Ressource."@de ;
+	rdfs:isDefinedBy	<http://purl.org/dc/terms/>
+.
+
+foaf:mbox
+	a					rdf:Property;
+	rdfs:label			"Personal mailbox"@en, "Email pessoal"@pt, "Email personal"@es, "Persönliche Mailbox"@de ;
+	rdfs:comment		"A personal mailbox, ie. an Internet mailbox associated with exactly one owner, the first owner of this mailbox. This is a 'static inverse functional property', in that there is (across time and change) at most one individual that ever has any particular value for foaf:mbox.";
+	rdfs:isDefinedBy	<http://xmlns.com/foaf/0.1/>
+.
+
+foaf:name			
+	a 					rdf:Property;
+	rdfs:Label			"Name"@en, "Nome"@pt, "Nombre"@es, "Name"@de ;
+	rdfs:comment		"A name for some thing."@en,
+						"Nome para algo."@pt,
+						"Nombre para algo."@es,
+						"Ein Name für etwas"@de;
+	rdfs:isDefinedBy	<http://xmlns.com/foaf/0.1/>
+.
+
