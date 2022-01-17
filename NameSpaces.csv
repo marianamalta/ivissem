@@ -1,0 +1,8 @@
+prefix,URI,Note
+rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#,RDF
+rdfs,http://www.w3.org/2000/01/rdf-schema#,RDF Schema
+xsd,http://www.w3.org/2001/XMLSchema#,XSD: use for data types
+dct,http://purl.org/dc/terms/,DCMI Metadata Terms
+foaf,http://xmlns.com/foaf/0.1/,Friend of a Friend
+schema,https://schema.org/,Schema.org
+ivissem,https:// to be defined
