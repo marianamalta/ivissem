@@ -1,0 +1,71 @@
+PREFIX :    		    <http://example.org/>
+PREFIX ivissem:     <http://ivissem.org/>
+PREFIX schema:    	<http://schema.org/>
+PREFIX xsd:    		  <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf:    	  <http://xmlns.com/foaf/0.1/>
+PREFIX dct:    		  <http://purl.org/dc/terms/>
+PREFIX rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+
+
+:researchOutput IRI  EXTRA a { 
+ a                 				          [ivissem:ResearchOutput]                    ;                         
+ dct:identifier     				        LITERAL OR IRI			   		                + ;  	  #This is left open and is controled by the datatypes
+ dct:title      					          xsd:string			   		                      ;	    #empty cardinality is 1
+ dct:issued     					          xsd:date          	 		                  ? ;	    #0-1
+ dct:publisher  	                  xsd:string OR  EXTRA a { a [ dct:Agent] } ? ;     #0-1, empty a string or an Agent, not both.	
+ ivissem:totalCitations			        xsd:integer  MinInclusive 0	              ? ;
+ ivissem:totalRecommendations		    xsd:integer  MinInclusive 0	              ? ;
+ dct:abstract						            xsd:string					                      ? ;
+ dct:language			                  [<https://iso639-3.sil.org/code/>~]       ? ;     #Would be same as adding the prefix and saying iso:~
+ ivissem:platformShares			        xsd:integer  MinInclusive 0	              * ;	    #Why is this as 1-n??
+ ivissem:socialMediaIndicator		    xsd:double OR xsd:decimal OR xsd:float    ? ;
+ dct:modified                       xsd:date                                  * ;
+ dct:subject                        xsd:string OR IRI                         * ;     #One or the other, none, multiple of each or multiple of both. 
+ dct:type                           [<http://purl.org/coar/resource_type/>~]  ? ;
+ dct:source                         xsd:anyUri                                ? ;
+ dct:creator                        xsd:string OR EXTRA a { a [ foaf:Agent] } + ;
+ schema:award                       xsd:string OR xsd:anyUri                  * ;     
+}
+
+
+
+:user IRI  EXTRA a {
+  a                                 [ivissem:User]                              ;
+  dct:identifier                    Literal OR IRI                              ;
+  foaf:name                         xsd:string                                + ;
+  foaf:mbox                         IRI /mailto:.*.+@.+\..+/                  + ;     #checks if; URL, has @ and . , and chars inbetween
+  schema:qualifications             xsd:string OR xsd:anyUri                  * ;
+  ivissem:totalCitations			      xsd:integer  MinInclusive 0	              ? ;
+  ivissem:totalPublications			    xsd:integer  MinInclusive 0	                ;
+  ivissem:numberOfFollowers         xsd:integer  MinInclusive 0	              + ;     #datatype specifies the platform of the follows???
+  ivissem:recommends                @:researchOutput                          * ;
+  schema:follows                    @:user                                    * ;
+  dct:subject                       xsd:string OR IRI                         * ;     #One or the other, none, multiple of each or multiple of both. 
+  schema:affiliation                xsd:string
+                                 OR [<https://www.grid.ac/institutes/grid.>~] * ;
+  schema:award                      xsd:string OR IRI                         * ;
+  schema:knowsAbout                 xsd:string OR IRI                         * ;
+}  
+
+_:metaKnow BNODE EXTRA a { 
+  a                                 [ivissem:ScientificKnowledge]               ;
+  a                                 [rdf:Statement]                             ;
+  rdf:subject                       IRI @:user                                  ;
+  rdf:predicate                     [schema:knowsAbout]                         ;
+  rdf:object                        xsd:string OR IRI                           ;
+  ivissem:levelOfExpertise          xsd:string
+                                 OR [<http://data.europa.eu/snb/eqf/>~]         ;
+}
+
+_:metaAffi BNODE EXTRA a { 
+  a                                [ivissem:Affiliation]                        ;
+  a                                [rdf:Statement]                              ;
+  rdf:subject                       IRI @:user                                  ;
+  rdf:predicate                    [schema:Affiliation]                     ;
+  rdf:object                       xsd:string
+                                OR [<https://www.grid.ac/institutes/grid.>~]    ;
+  schema:startDate                  xsd:date                                    ;
+  schema:endDate                    xsd:date                                    ;
+  schema:roleName                   xsd:string                                  ;
+}
